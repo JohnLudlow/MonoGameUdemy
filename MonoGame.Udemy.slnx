@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="MonoGame.Udemy.First/MonoGame.Udemy.First.csproj" />
+  <Project Path="MonoGame.Udemy.GraphicsDemo/MonoGame.Udemy.GraphicsDemo.csproj" />
+</Solution>
