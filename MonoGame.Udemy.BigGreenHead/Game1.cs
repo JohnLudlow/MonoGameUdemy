@@ -10,6 +10,10 @@ public class Game1 : Game
     private SpriteBatch _spriteBatch;
     private Texture2D _greenHeadTexture;
 
+    private Vector2 _spriteLocation = new(0, 0);
+    private Vector2 _spriteVelocity = new(5, 2);
+
+
     public Game1()
     {
         _graphics = new GraphicsDeviceManager(this)
@@ -44,6 +48,16 @@ public class Game1 : Game
             Exit();
 
         // TODO: Add your update logic here
+        //
+        // _spriteLocation += new Vector2(1, .5f);
+
+        _spriteLocation += _spriteVelocity * (float)(gameTime.ElapsedGameTime.TotalSeconds * 60);
+
+        if (_spriteLocation.X < 0 || ((_spriteLocation.X + _greenHeadTexture.Width)  > _graphics.GraphicsDevice.Viewport.Width))
+            _spriteVelocity.X = -_spriteVelocity.X;
+
+        if (_spriteLocation.Y < 0 || ((_spriteLocation.Y + _greenHeadTexture.Height) > _graphics.GraphicsDevice.Viewport.Height))
+            _spriteVelocity.Y = -_spriteVelocity.Y;
 
         base.Update(gameTime);
     }
@@ -57,17 +71,7 @@ public class Game1 : Game
         try
         {
             _spriteBatch.Begin();
-            _spriteBatch.Draw(_greenHeadTexture, Vector2.Zero, Color.White);
-            _spriteBatch.Draw(_greenHeadTexture, new Vector2(_greenHeadTexture.Width, _greenHeadTexture.Height), Color.White);            
-            _spriteBatch.Draw(_greenHeadTexture, new Vector2(_greenHeadTexture.Width * 2, _greenHeadTexture.Height * 2), Color.Red);
-            _spriteBatch.Draw(
-                _greenHeadTexture, 
-                new Vector2(
-                    _graphics.GraphicsDevice.Viewport.Width  - _greenHeadTexture.Width, 
-                    _graphics.GraphicsDevice.Viewport.Height - _greenHeadTexture.Height
-                ), 
-                Color.White
-            );
+            _spriteBatch.Draw(_greenHeadTexture, _spriteLocation, Color.White);            
         }
         finally
         {
