@@ -1,4 +1,6 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using System.Collections.Generic;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
@@ -6,12 +8,10 @@ namespace MonoGame.Udemy.BigGreenHead;
 
 public class Game1 : Game
 {
-    private GraphicsDeviceManager _graphics;
-    private SpriteBatch _spriteBatch;
-    private Texture2D _greenHeadTexture;
+    private readonly GraphicsDeviceManager _graphics;
+    private SpriteBatch? _spriteBatch;
 
-    private Vector2 _spriteLocation = new(0, 0);
-    private Vector2 _spriteVelocity = new(5, 2);
+    private BouncingThing[]?_bouncingHeads;
 
 
     public Game1()
@@ -30,6 +30,24 @@ public class Game1 : Game
     {
         // TODO: Add your initialization logic here
 
+        _bouncingHeads = [
+            new BouncingThing
+            {
+                Area = _graphics.GraphicsDevice.Viewport.Bounds,
+                Position = new Vector2(0, 0),
+                Velocity = new Vector2(5, 2),
+                Sprite = Content.Load<Texture2D>("Assets/Images/greenhead")
+            },
+
+            new BouncingThing
+            {
+                Area = _graphics.GraphicsDevice.Viewport.Bounds,
+                Position = new Vector2(500, 200),
+                Velocity = new Vector2(-5, -2),
+                Sprite = Content.Load<Texture2D>("Assets/Images/greenhead")
+            }
+        ];
+
         base.Initialize();
     }
 
@@ -38,8 +56,6 @@ public class Game1 : Game
         _spriteBatch = new SpriteBatch(GraphicsDevice);
 
         // TODO: use this.Content to load your game content here
-
-        _greenHeadTexture = Content.Load<Texture2D>("Assets/Images/greenhead");
     }
 
     protected override void Update(GameTime gameTime)
@@ -47,17 +63,17 @@ public class Game1 : Game
         if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
             Exit();
 
+        if (_bouncingHeads is null)
+            throw new InvalidOperationException($"Cannot call {nameof(Update)} before {nameof(Initialize)}");
+
         // TODO: Add your update logic here
         //
         // _spriteLocation += new Vector2(1, .5f);
 
-        _spriteLocation += _spriteVelocity * (float)(gameTime.ElapsedGameTime.TotalSeconds * 60);
-
-        if (_spriteLocation.X < 0 || ((_spriteLocation.X + _greenHeadTexture.Width)  > _graphics.GraphicsDevice.Viewport.Width))
-            _spriteVelocity.X = -_spriteVelocity.X;
-
-        if (_spriteLocation.Y < 0 || ((_spriteLocation.Y + _greenHeadTexture.Height) > _graphics.GraphicsDevice.Viewport.Height))
-            _spriteVelocity.Y = -_spriteVelocity.Y;
+        foreach (var v in _bouncingHeads)
+        {
+            v.Update(gameTime);
+        }
 
         base.Update(gameTime);
     }
@@ -68,10 +84,16 @@ public class Game1 : Game
 
         // TODO: Add your drawing code here
 
+        if (_spriteBatch is null) throw new InvalidOperationException($"Cannot draw when {nameof(_spriteBatch)} is null");
+
         try
         {
             _spriteBatch.Begin();
-            _spriteBatch.Draw(_greenHeadTexture, _spriteLocation, Color.White);            
+
+            foreach (var bouncer in _bouncingHeads ?? [])
+            {
+                bouncer.Draw(gameTime, _spriteBatch);
+            }
         }
         finally
         {
@@ -84,10 +106,7 @@ public class Game1 : Game
     protected override void Dispose(bool disposing)
     {
         _graphics.Dispose();
-        _graphics = null;
-
-        _spriteBatch.Dispose();
-        _spriteBatch = null;
+        _spriteBatch?.Dispose();
 
         base.Dispose(disposing);
     }

@@ -2,5 +2,6 @@
   <PropertyGroup>
     <AnalysisMode>Recommended</AnalysisMode>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 </Project>
