@@ -2,4 +2,5 @@
   <Project Path="MonoGame.Udemy.BigGreenHead/MonoGame.Udemy.BigGreenHead.csproj" />
   <Project Path="MonoGame.Udemy.First/MonoGame.Udemy.First.csproj" />
   <Project Path="MonoGame.Udemy.GraphicsDemo/MonoGame.Udemy.GraphicsDemo.csproj" />
+  <Project Path="MonoGame.Udemy.RotatingSprite/MonoGame.Udemy.RotatingSprite.csproj" />
 </Solution>
