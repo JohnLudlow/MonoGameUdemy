@@ -11,6 +11,8 @@ public class BouncingThing
     public required Texture2D Sprite { get; set; }
     public required Rectangle Area { get; set; }
 
+    public Color Color { get; set; } = Color.White;
+
     public void Update(GameTime gameTime)
     {
         Position += Velocity * (float)(gameTime.ElapsedGameTime.TotalSeconds * 60);
@@ -43,6 +45,6 @@ public class BouncingThing
         if (Sprite is null) 
             throw new InvalidOperationException($"Cannot call {nameof(Draw)} when {nameof(Sprite)} is null");
         
-        spriteBatch.Draw(Sprite, Position, Color.White);
+        spriteBatch.Draw(Sprite, Position, Color);
     }
 }

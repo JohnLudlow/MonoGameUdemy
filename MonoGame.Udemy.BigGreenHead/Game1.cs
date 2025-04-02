@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Media;
 
 namespace MonoGame.Udemy.BigGreenHead;
 
@@ -11,8 +13,11 @@ public class Game1 : Game
     private readonly GraphicsDeviceManager _graphics;
     private SpriteBatch? _spriteBatch;
 
-    private BouncingThing[]?_bouncingHeads;
+    private BouncingThing[]? _bouncingHeads;
 
+    private Texture2D? _background;
+
+    private Song _song;
 
     public Game1()
     {
@@ -30,25 +35,36 @@ public class Game1 : Game
     {
         // TODO: Add your initialization logic here
 
-        _bouncingHeads = [
-            new BouncingThing
-            {
-                Area = _graphics.GraphicsDevice.Viewport.Bounds,
-                Position = new Vector2(0, 0),
-                Velocity = new Vector2(5, 2),
-                Sprite = Content.Load<Texture2D>("Assets/Images/greenhead")
-            },
-
-            new BouncingThing
-            {
-                Area = _graphics.GraphicsDevice.Viewport.Bounds,
-                Position = new Vector2(500, 200),
-                Velocity = new Vector2(-5, -2),
-                Sprite = Content.Load<Texture2D>("Assets/Images/greenhead")
-            }
-        ];
+        _bouncingHeads = [.. GenerateHeads(20, _graphics.GraphicsDevice.Viewport.Bounds)];
 
         base.Initialize();
+    }
+
+    private IEnumerable<BouncingThing> GenerateHeads(int count, Rectangle area)
+    {
+        var rand = new Random();
+
+        for (var i = 0; i < count; i++)
+        {
+            yield return new BouncingThing
+            {
+                Area = _graphics.GraphicsDevice.Viewport.Bounds,
+                
+                Position = new Vector2(
+                    rand.Next(area.Left, area.Right), 
+                    rand.Next(area.Top, area.Bottom)
+                ),
+
+                Velocity = new Vector2(rand.Next(2, 11), rand.Next(2, 11)),
+                Sprite = Content.Load<Texture2D>("Assets/Images/greenhead"),
+                
+                Color = new Color(
+                    r: rand.Next(0, 256),
+                    g: rand.Next(0, 256),
+                    b: rand.Next(0, 256)
+                ),
+            };
+        }
     }
 
     protected override void LoadContent()
@@ -56,6 +72,9 @@ public class Game1 : Game
         _spriteBatch = new SpriteBatch(GraphicsDevice);
 
         // TODO: use this.Content to load your game content here
+        _background = Content.Load<Texture2D>("Assets/Images/sjb");
+        _song = Content.Load<Song>("Assets/Sounds/wakingup");
+        MediaPlayer.Play(_song);
     }
 
     protected override void Update(GameTime gameTime)
@@ -70,9 +89,9 @@ public class Game1 : Game
         //
         // _spriteLocation += new Vector2(1, .5f);
 
-        foreach (var v in _bouncingHeads)
+        foreach (var head in _bouncingHeads)
         {
-            v.Update(gameTime);
+            head.Update(gameTime);
         }
 
         base.Update(gameTime);
@@ -89,6 +108,7 @@ public class Game1 : Game
         try
         {
             _spriteBatch.Begin();
+            _spriteBatch.Draw(_background, _graphics.GraphicsDevice.Viewport.Bounds, Color.White);
 
             foreach (var bouncer in _bouncingHeads ?? [])
             {
